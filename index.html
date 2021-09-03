@@ -13,6 +13,9 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<script type="text/javascript" src="./js/web3.min.js"></script>
 	<script type="text/javascript" src="./js/ethereumjs-tx-1.3.3.min.js"></script>
+	
+	<script type="text/javascript" src="./js/qrcode.js"></script>
+	
 	<script src="http://code.jquery.com/jquery-latest.js "></script>
 
 	<!-- bootsrtap CSS -->
@@ -34,6 +37,22 @@
 				console.log("web3: ", web3);
 			}
 			
+			let qrcode = new QRCode(document.getElementById("qrcode"), {
+				width : 250,
+				height : 250
+			  });
+
+		    function makeCode () {		
+			  let elText = document.getElementById("fromaddress");
+			
+			  if (!elText.value) {
+				alert("Input a text");
+				elText.focus();
+				return;
+			  }
+			  qrcode.makeCode(elText.value);
+		    } 
+			
 			$('#sendMycoin').on('click', async function () {
 			
 			    let fromaddress = $("#fromaddress").val();
@@ -43,6 +62,9 @@
 			
 			
 				const privateKey = Buffer.from(myPrivateKey, 'hex');
+				if (DEBUG) console.log("fromaddress: ", fromaddress);
+				if (DEBUG) console.log("toaddress: ", toaddress);
+				if (DEBUG) console.log("amount: ", amount);
 				if (DEBUG) console.log("privateKey: ", privateKey);
 
 				web3.eth.getTransactionCount(fromaddress, (err, txCount) => {
@@ -63,8 +85,8 @@
 				 const raw = '0x' + serializedTx.toString('hex')
 
 				 // Broadcast the transaction
-				 web3.eth.sendSignedTransaction(raw, (err, txHash) => {
-				console.log('txHash:', txHash)
+				   web3.eth.sendSignedTransaction(raw, (err, txHash) => {
+				   console.log('txHash:', txHash)
 				  // Now go check etherscan to see the transaction!
 				  })
 				})  // end of txbuilder
@@ -96,6 +118,8 @@
 
 				$('#message').text(" account: " + account.address);
 				alert("Account 생성이 완료 되었습니다..!!!" + account.address);
+				
+				makeCode();   
 
 				// getting the value
 				// let fromaddress = $("#fromaddress").val();
@@ -130,6 +154,7 @@
 	<div class="container " role="main">
 		<h4><strong> Message </strong></h4>
 		<div id="message"></div>
+		<div id="qrcode" style="width:250px; height:250px; margin-top:15px;"></div>
 	</div>
 	<hr>
 	<footer class="py-5 bg-dark">
